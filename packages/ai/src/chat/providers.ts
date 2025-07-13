@@ -1,5 +1,6 @@
 import { bedrock } from '@ai-sdk/amazon-bedrock';
 import { createAnthropic } from '@ai-sdk/anthropic';
+import { createNikanyx } from '@ai-sdk/nikanyx';
 import { createVertexAnthropic } from '@ai-sdk/google-vertex/anthropic/edge';
 import { BEDROCK_MODEL_MAP, CLAUDE_MODELS, LLMProvider, VERTEX_MODEL_MAP } from '@onlook/models';
 import { assertNever } from '@onlook/utility';
@@ -23,6 +24,11 @@ export async function initModel(
         case LLMProvider.GOOGLE_VERTEX:
             return {
                 model: await getVertexProvider(model),
+                providerOptions: {},
+            };
+        case LLMProvider.NIKANYX:
+            return {
+                model: await getNikanyxProvider(model),
                 providerOptions: {},
             };
         default:
@@ -71,4 +77,9 @@ async function getVertexProvider(model: CLAUDE_MODELS) {
             privateKey: process.env.GOOGLE_PRIVATE_KEY,
         },
     })(vertexModel);
+}
+
+async function getNikanyxProvider(model: CLAUDE_MODELS): Promise<LanguageModelV1> {
+    const nikanyx = createNikanyx();
+    return nikanyx(model);
 }
